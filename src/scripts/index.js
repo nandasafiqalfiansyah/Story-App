@@ -17,24 +17,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   await app.renderPage();
 
   window.addEventListener('hashchange', async () => {
-    await app.renderPage();
+    await registerServiceWorker();
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/sw-notification.js')
-        .then((registration) => {
-          console.log('Service Worker registered with scope:', registration.scope);
-        })
-        .catch((error) => {
-          console.error('Service Worker registration failed:', error);
-        });
-    }
-
-    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js');
-      });
-    }
+    window.addEventListener('hashchange', async () => {
+      await app.renderPage();
+    });
 
     Camera.stopAllStreams();
   });

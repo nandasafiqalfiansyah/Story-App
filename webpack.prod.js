@@ -29,38 +29,9 @@ module.exports = merge(common, {
   plugins: [
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin(),
-    new WorkboxPlugin.GenerateSW({
-      swDest: 'service-worker.js',
-      clientsClaim: true,
-      skipWaiting: true,
-      runtimeCaching: [
-        {
-          urlPattern: ({ request }) => request.destination === 'image',
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'images-cache',
-            expiration: {
-              maxEntries: 50,
-              maxAgeSeconds: 30 * 24 * 60 * 60, 
-            },
-          },
-        },
-        {
-          urlPattern: ({ request }) =>
-            request.destination === 'script' || request.destination === 'style',
-          handler: 'StaleWhileRevalidate',
-          options: {
-            cacheName: 'assets-cache',
-          },
-        },
-        {
-          urlPattern: ({ request }) => request.destination === 'document',
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'html-cache',
-          },
-        },
-      ],
+    new InjectManifest({
+      swSrc: path.resolve(__dirname, 'src/scripts/sw.js'),
+      swDest: 'sw.bundle.js',
     }),
   ],
 });

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
-        .register('src/scripts/sw.js', { type: 'module' })
+        .register('/sw.js', { type: 'module' })
         .then((registration) => {
           console.log('Service Worker registered with scope:', registration.scope);
         })

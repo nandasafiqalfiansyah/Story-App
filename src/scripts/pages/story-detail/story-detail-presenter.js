@@ -22,24 +22,30 @@ export default class ReportDetailPresenter {
     }
   }
   async saveReport() {
-    const response = await this.#apiModel.getReportById(this.#reportId);
-    console.log('response:', response);
-    if (!response.ok) {
-      console.error('saveReport: response:', response);
-      this.#view.showSaveError(response.message);
+    try {
+      const response = await this.#apiModel.getReportById(this.#reportId);
+
+      if (!response.ok) {
+        this.#view.showSaveError(response.message);
+        return;
+      }
+
+      const storyid = await getSavedStoryById(response.story.id);
+      if (storyid) {
+        alert('Story sudah tersimpan.');
+        return;
+      }
+
+      const story = response.story;
+      await saveStory(story);
+
+      alert('Story berhasil disimpan.');
+      return;
+    } catch (error) {
+      alert('Story gagal disimpan.');
+      console.error('saveReport: error:', error);
       return;
     }
-    const storyid = await getSavedStoryById(response.story.id);
-    if (storyid) {
-      alert('Story sudah tersimpan.');
-      return;
-    }
-
-    const story = response.story;
-    await saveStory(story);
-
-    alert('Story berhasil disimpan.');
-    return;
   }
 
   async showReportDetail() {

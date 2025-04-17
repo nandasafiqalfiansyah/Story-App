@@ -41,7 +41,7 @@ module.exports = merge(common, {
             cacheName: 'images-cache',
             expiration: {
               maxEntries: 50,
-              maxAgeSeconds: 30 * 24 * 60 * 60, // 30 hari
+              maxAgeSeconds: 30 * 24 * 60 * 60, 
             },
           },
         },

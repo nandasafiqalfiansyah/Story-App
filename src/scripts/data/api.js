@@ -15,43 +15,69 @@ const ENDPOINTS = {
 };
 
 async function apiRequest(url, options = {}) {
+  // Skip caching for non-GET requests (POST, PUT, DELETE)
+  if (options.method && options.method !== 'GET') {
+    return fetchWithErrorHandling(url, options);
+  }
+
   try {
+    // Network-first strategy for API calls
     const fetchResponse = await fetch(url, options);
     if (fetchResponse.ok) {
+      // Cache the response if it's successful
       if ('caches' in window) {
-        const cache = await caches.open('api-cache');
-        cache.put(url, fetchResponse.clone());
+        const cache = await caches.open('story-app');
+        await cache.put(url, fetchResponse.clone());
       }
+      return await fetchResponse.json();
     }
-    const json = await fetchResponse.json();
-    return { ...json, ok: fetchResponse.ok };
+    throw new Error(`HTTP error! status: ${fetchResponse.status}`);
   } catch (error) {
-    console.warn('Fetch gagal, mencoba cache:', error);
+    console.warn('Network request failed, falling back to cache:', error);
+    // Fallback to cache if network fails
     if ('caches' in window) {
-      const cache = await caches.open('api-cache');
+      const cache = await caches.open('story-app');
       const cachedResponse = await cache.match(url);
       if (cachedResponse) {
         return await cachedResponse.json();
       }
     }
+    return {
+      error: 'Gagal menghubungi server. Anda sedang offline dan data tidak tersedia di cache.',
+      ok: false,
+    };
+  }
+}
+
+// Helper for non-cacheable requests
+async function fetchWithErrorHandling(url, options) {
+  try {
+    const response = await fetch(url, options);
+    const data = await response.json();
+    return { ...data, ok: response.ok };
+  } catch (error) {
+    console.error('Request failed:', error);
     return { error: 'Gagal menghubungi server', ok: false };
   }
 }
 
+// ====================== API Functions ======================
+// Auth API
 export const getRegistered = async ({ name, email, password }) =>
-  apiRequest(ENDPOINTS.REGISTER, {
+  fetchWithErrorHandling(ENDPOINTS.REGISTER, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, email, password }),
   });
 
 export const getLogin = async ({ email, password }) =>
-  apiRequest(ENDPOINTS.LOGIN, {
+  fetchWithErrorHandling(ENDPOINTS.LOGIN, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
 
+// User API (GET requests - cached)
 export const getMyUserInfo = async () =>
   apiRequest(ENDPOINTS.MY_USER_INFO, {
     headers: { Authorization: `Bearer ${getAccessToken()}` },
@@ -75,16 +101,16 @@ export const AddNewStory = async ({ description, photo, lat, lon }) => {
   if (lat !== undefined) formData.append('lat', lat);
   if (lon !== undefined) formData.append('lon', lon);
 
-  return apiRequest(ENDPOINTS.STORE_NEW_REPORT, {
+  return fetchWithErrorHandling(ENDPOINTS.STORE_NEW_REPORT, {
     method: 'POST',
     headers: { Authorization: `Bearer ${getAccessToken()}` },
     body: formData,
   });
 };
 
-// Push Notification API
+// Push Notification API (non-cacheable)
 export const subscribePushNotification = async ({ endpoint, keys: { p256dh, auth } }) =>
-  apiRequest(ENDPOINTS.SUBSCRIBE, {
+  fetchWithErrorHandling(ENDPOINTS.SUBSCRIBE, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -94,7 +120,7 @@ export const subscribePushNotification = async ({ endpoint, keys: { p256dh, auth
   });
 
 export const unsubscribePushNotification = async ({ endpoint }) =>
-  apiRequest(ENDPOINTS.UNSUBSCRIBE, {
+  fetchWithErrorHandling(ENDPOINTS.UNSUBSCRIBE, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',

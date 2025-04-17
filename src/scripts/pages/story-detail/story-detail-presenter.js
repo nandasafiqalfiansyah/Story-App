@@ -25,11 +25,6 @@ export default class ReportDetailPresenter {
     try {
       const response = await this.#apiModel.getReportById(this.#reportId);
 
-      if (!response.ok) {
-        this.#view.showSaveError(response.message);
-        return;
-      }
-
       const storyid = await getSavedStoryById(response.story.id);
       if (storyid) {
         alert('Story sudah tersimpan.');
@@ -43,7 +38,6 @@ export default class ReportDetailPresenter {
       return;
     } catch (error) {
       alert('Story gagal disimpan.');
-      console.error('saveReport: error:', error);
       return;
     }
   }

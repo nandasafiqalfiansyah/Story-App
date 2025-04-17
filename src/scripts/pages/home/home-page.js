@@ -43,8 +43,6 @@ export default class HomePage {
   }
 
   populateReportsList(message, reports) {
-    console.log(reports);
-
     if (!Array.isArray(reports) || reports.length <= 0) {
       this.populateReportsListEmpty();
       return;

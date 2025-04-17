@@ -24,7 +24,6 @@ export default class ReportDetailPresenter {
   async saveReport() {
     try {
       const response = await this.#apiModel.getReportById(this.#reportId);
-
       const storyid = await getSavedStoryById(response.story.id);
       if (storyid) {
         alert('Story sudah tersimpan.');

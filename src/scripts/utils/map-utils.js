@@ -59,6 +59,9 @@ export async function addMarkersToMap(map, reports) {
 
 // Fungsi untuk mendapatkan alamat lengkap dari koordinat
 export async function getLocationDetails(lat, lon) {
+  if (!lat || !lon) {
+    return 'Alamat tidak ditemukan';
+  }
   try {
     const response = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
@@ -68,7 +71,6 @@ export async function getLocationDetails(lat, lon) {
     if (data.error) {
       return 'Alamat tidak ditemukan';
     }
-
     return data.display_name;
   } catch {
     return 'Alamat tidak ditemukan';

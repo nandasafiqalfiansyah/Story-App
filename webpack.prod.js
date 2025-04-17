@@ -31,7 +31,7 @@ module.exports = merge(common, {
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin(),
     new InjectManifest({
-      swSrc: path.resolve(__dirname, '/src/public/sw.js'),
+      swSrc: path.resolve(__dirname, 'src/public/sw.js'),
       swDest: 'sw.bundle.js',
     }),
   ],

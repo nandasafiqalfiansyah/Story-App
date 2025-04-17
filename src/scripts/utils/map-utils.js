@@ -53,7 +53,6 @@ export async function addMarkersToMap(map, reports) {
         .bindTooltip(name)
         .bindPopup(`<b>${name}</b><br>${lat}, ${lon}`);
     } else {
-      console.warn(`Tidak bisa menemukan koordinat untuk laporan: ${name}`);
     }
   });
 }

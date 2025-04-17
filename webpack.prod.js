@@ -32,7 +32,7 @@ module.exports = merge(common, {
     new MiniCssExtractPlugin(),
     new InjectManifest({
       swSrc: path.resolve(__dirname, 'src/public/sw.js'),
-      swDest: 'sw.bundle.js',
+      swDest: 'sw.js',
     }),
   ],
 });
